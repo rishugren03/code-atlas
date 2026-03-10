@@ -12,8 +12,8 @@ class Settings(BaseSettings):
     DEBUG: bool = True
 
     # ─── Database (PostgreSQL) ──────────────────────────────
-    DATABASE_URL: str = "postgresql+asyncpg://codeatlas:codeatlas_secret@localhost:5432/codeatlas"
-    DATABASE_URL_SYNC: str = "postgresql://codeatlas:codeatlas_secret@localhost:5432/codeatlas"
+    DATABASE_URL: str = "postgresql+asyncpg://codeatlas:codeatlas_secret@localhost:5433/codeatlas"
+    DATABASE_URL_SYNC: str = "postgresql://codeatlas:codeatlas_secret@localhost:5433/codeatlas"
 
     # ─── Redis ──────────────────────────────────────────────
     REDIS_URL: str = "redis://localhost:6379/0"
@@ -28,6 +28,11 @@ class Settings(BaseSettings):
 
     # ─── GitHub ─────────────────────────────────────────────
     GITHUB_TOKEN: str = ""
+
+    # ─── Repository Processing ──────────────────────────────
+    CLONE_DIR: str = "cloned_repos"
+    MAX_REPO_SIZE_MB: int = 2048  # 2GB limit
+    MAX_COMMITS: int = 500_000
 
     @property
     def cors_origins_list(self) -> list[str]:
