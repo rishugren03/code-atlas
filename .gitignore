@@ -1,3 +1,6 @@
+# ─── Agent Config (local only) ──────────────────────────────
+.agents/
+
 # ─── Environment ────────────────────────────────────────────
 .env
 .env.local
