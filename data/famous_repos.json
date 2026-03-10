@@ -1,0 +1,60 @@
+{
+  "famous_repos": [
+    {
+      "owner": "torvalds",
+      "name": "linux",
+      "url": "https://github.com/torvalds/linux",
+      "description": "Linux kernel source tree",
+      "language": "C"
+    },
+    {
+      "owner": "microsoft",
+      "name": "vscode",
+      "url": "https://github.com/microsoft/vscode",
+      "description": "Visual Studio Code",
+      "language": "TypeScript"
+    },
+    {
+      "owner": "facebook",
+      "name": "react",
+      "url": "https://github.com/facebook/react",
+      "description": "The library for web and native user interfaces",
+      "language": "JavaScript"
+    },
+    {
+      "owner": "nodejs",
+      "name": "node",
+      "url": "https://github.com/nodejs/node",
+      "description": "Node.js JavaScript runtime",
+      "language": "JavaScript"
+    },
+    {
+      "owner": "rust-lang",
+      "name": "rust",
+      "url": "https://github.com/rust-lang/rust",
+      "description": "Empowering everyone to build reliable and efficient software",
+      "language": "Rust"
+    },
+    {
+      "owner": "golang",
+      "name": "go",
+      "url": "https://github.com/golang/go",
+      "description": "The Go programming language",
+      "language": "Go"
+    },
+    {
+      "owner": "python",
+      "name": "cpython",
+      "url": "https://github.com/python/cpython",
+      "description": "The Python programming language",
+      "language": "Python"
+    },
+    {
+      "owner": "tensorflow",
+      "name": "tensorflow",
+      "url": "https://github.com/tensorflow/tensorflow",
+      "description": "An open-source machine learning framework",
+      "language": "C++"
+    }
+  ]
+}

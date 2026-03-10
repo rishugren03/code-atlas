@@ -1,0 +1,204 @@
+{
+  "languages": [
+    {
+      "name": "C",
+      "year_created": 1972,
+      "paradigm": "procedural",
+      "creator": "Dennis Ritchie",
+      "influenced_by": ["B", "ALGOL 68"],
+      "influenced": ["C++", "Objective-C", "C#", "Java", "Go", "Rust", "Python", "JavaScript", "PHP", "Perl"]
+    },
+    {
+      "name": "C++",
+      "year_created": 1985,
+      "paradigm": "multi-paradigm",
+      "creator": "Bjarne Stroustrup",
+      "influenced_by": ["C", "Simula"],
+      "influenced": ["Java", "C#", "Rust", "D"]
+    },
+    {
+      "name": "Python",
+      "year_created": 1991,
+      "paradigm": "multi-paradigm",
+      "creator": "Guido van Rossum",
+      "influenced_by": ["C", "ABC", "Haskell", "Lisp"],
+      "influenced": ["Julia", "Swift", "Go", "Nim", "Mojo"]
+    },
+    {
+      "name": "Java",
+      "year_created": 1995,
+      "paradigm": "object-oriented",
+      "creator": "James Gosling",
+      "influenced_by": ["C++", "Smalltalk", "Objective-C"],
+      "influenced": ["C#", "Kotlin", "Scala", "Groovy", "Dart"]
+    },
+    {
+      "name": "JavaScript",
+      "year_created": 1995,
+      "paradigm": "multi-paradigm",
+      "creator": "Brendan Eich",
+      "influenced_by": ["C", "Scheme", "Self", "Java"],
+      "influenced": ["TypeScript", "CoffeeScript", "Dart"]
+    },
+    {
+      "name": "TypeScript",
+      "year_created": 2012,
+      "paradigm": "multi-paradigm",
+      "creator": "Anders Hejlsberg",
+      "influenced_by": ["JavaScript", "C#", "Java"],
+      "influenced": []
+    },
+    {
+      "name": "Ruby",
+      "year_created": 1995,
+      "paradigm": "multi-paradigm",
+      "creator": "Yukihiro Matsumoto",
+      "influenced_by": ["Perl", "Smalltalk", "Lisp", "Python"],
+      "influenced": ["Crystal", "Elixir", "Swift"]
+    },
+    {
+      "name": "Go",
+      "year_created": 2009,
+      "paradigm": "multi-paradigm",
+      "creator": "Robert Griesemer, Rob Pike, Ken Thompson",
+      "influenced_by": ["C", "Oberon", "Python"],
+      "influenced": ["Zig", "V"]
+    },
+    {
+      "name": "Rust",
+      "year_created": 2010,
+      "paradigm": "multi-paradigm",
+      "creator": "Graydon Hoare",
+      "influenced_by": ["C++", "Haskell", "OCaml", "Erlang"],
+      "influenced": ["Zig", "Carbon"]
+    },
+    {
+      "name": "Swift",
+      "year_created": 2014,
+      "paradigm": "multi-paradigm",
+      "creator": "Chris Lattner",
+      "influenced_by": ["Objective-C", "Rust", "Haskell", "Ruby", "Python", "C#"],
+      "influenced": []
+    },
+    {
+      "name": "Kotlin",
+      "year_created": 2011,
+      "paradigm": "multi-paradigm",
+      "creator": "JetBrains",
+      "influenced_by": ["Java", "Scala", "Groovy", "C#"],
+      "influenced": []
+    },
+    {
+      "name": "Haskell",
+      "year_created": 1990,
+      "paradigm": "functional",
+      "creator": "Haskell Committee",
+      "influenced_by": ["Miranda", "ML", "Lisp"],
+      "influenced": ["Rust", "Swift", "Elm", "PureScript", "Python"]
+    },
+    {
+      "name": "Lisp",
+      "year_created": 1958,
+      "paradigm": "functional",
+      "creator": "John McCarthy",
+      "influenced_by": [],
+      "influenced": ["Scheme", "Clojure", "Haskell", "Python", "Ruby", "JavaScript"]
+    },
+    {
+      "name": "PHP",
+      "year_created": 1995,
+      "paradigm": "multi-paradigm",
+      "creator": "Rasmus Lerdorf",
+      "influenced_by": ["C", "Perl", "Java"],
+      "influenced": ["Hack"]
+    },
+    {
+      "name": "Perl",
+      "year_created": 1987,
+      "paradigm": "multi-paradigm",
+      "creator": "Larry Wall",
+      "influenced_by": ["C", "AWK", "sed"],
+      "influenced": ["Ruby", "PHP", "Python"]
+    },
+    {
+      "name": "Scala",
+      "year_created": 2004,
+      "paradigm": "multi-paradigm",
+      "creator": "Martin Odersky",
+      "influenced_by": ["Java", "Haskell", "ML", "Smalltalk"],
+      "influenced": ["Kotlin"]
+    },
+    {
+      "name": "Erlang",
+      "year_created": 1986,
+      "paradigm": "functional",
+      "creator": "Ericsson",
+      "influenced_by": ["Prolog", "Smalltalk"],
+      "influenced": ["Elixir", "Rust", "Akka"]
+    },
+    {
+      "name": "Elixir",
+      "year_created": 2011,
+      "paradigm": "functional",
+      "creator": "José Valim",
+      "influenced_by": ["Erlang", "Ruby", "Clojure"],
+      "influenced": ["Gleam"]
+    },
+    {
+      "name": "Objective-C",
+      "year_created": 1984,
+      "paradigm": "object-oriented",
+      "creator": "Brad Cox",
+      "influenced_by": ["C", "Smalltalk"],
+      "influenced": ["Swift", "Java"]
+    },
+    {
+      "name": "C#",
+      "year_created": 2000,
+      "paradigm": "multi-paradigm",
+      "creator": "Anders Hejlsberg",
+      "influenced_by": ["C++", "Java", "Delphi"],
+      "influenced": ["Dart", "Swift", "TypeScript", "Kotlin"]
+    },
+    {
+      "name": "Dart",
+      "year_created": 2011,
+      "paradigm": "multi-paradigm",
+      "creator": "Lars Bak, Kasper Lund",
+      "influenced_by": ["Java", "JavaScript", "C#"],
+      "influenced": []
+    },
+    {
+      "name": "Lua",
+      "year_created": 1993,
+      "paradigm": "multi-paradigm",
+      "creator": "Roberto Ierusalimschy",
+      "influenced_by": ["Scheme", "SNOBOL", "C"],
+      "influenced": []
+    },
+    {
+      "name": "R",
+      "year_created": 1993,
+      "paradigm": "multi-paradigm",
+      "creator": "Ross Ihaka, Robert Gentleman",
+      "influenced_by": ["S", "Scheme"],
+      "influenced": ["Julia"]
+    },
+    {
+      "name": "Julia",
+      "year_created": 2012,
+      "paradigm": "multi-paradigm",
+      "creator": "Jeff Bezanson, Stefan Karpinski, Viral B. Shah, Alan Edelman",
+      "influenced_by": ["Python", "R", "MATLAB", "Lisp"],
+      "influenced": []
+    },
+    {
+      "name": "Zig",
+      "year_created": 2016,
+      "paradigm": "systems",
+      "creator": "Andrew Kelley",
+      "influenced_by": ["C", "Rust", "Go"],
+      "influenced": []
+    }
+  ]
+}

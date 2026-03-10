@@ -1,0 +1,69 @@
+# ─── Environment ────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ─── Python ─────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+*.pyo
+
+# ─── Node.js ────────────────────────────────────────────────
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+.turbo/
+
+# ─── Docker ─────────────────────────────────────────────────
+postgres_data/
+redis_data/
+neo4j_data/
+
+# ─── IDE ────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# ─── OS ─────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ─── Cloned repos (runtime) ────────────────────────────────
+cloned_repos/
+
+# ─── Logs ───────────────────────────────────────────────────
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ─── Coverage & Testing ────────────────────────────────────
+coverage/
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+
+# ─── Misc ───────────────────────────────────────────────────
+*.pem
+.vercel
+
