@@ -1,13 +1,17 @@
 """Repository API router — submit repos for analysis and check status."""
 
 import json
+import math
+from datetime import datetime
 
 import redis.asyncio as aioredis
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.db.database import get_db
+from app.schemas.commit import CommitListResponse, CommitResponse
+from app.schemas.contributor import ContributorListResponse, ContributorResponse
 from app.schemas.repository import (
     RepoAnalyzeRequest,
     RepoAnalyzeResponse,
@@ -16,7 +20,10 @@ from app.schemas.repository import (
 )
 from app.services.repository import (
     create_or_get_repository,
+    get_repo_commits,
+    get_repo_contributors,
     get_repository,
+    get_repository_by_name,
     update_processing_status,
 )
 from app.utils.github import parse_github_url
@@ -68,6 +75,19 @@ async def submit_repo_for_analysis(
         status="queued",
         message="Repository analysis queued. Use GET /api/repos/{id}/status to check progress.",
     )
+
+
+@router.get("/lookup/{owner}/{name}", response_model=RepoDetailResponse)
+async def lookup_repo_by_name(
+    owner: str,
+    name: str,
+    db: AsyncSession = Depends(get_db),
+):
+    """Look up a repository by owner and name."""
+    repo = await get_repository_by_name(db, owner, name)
+    if repo is None:
+        raise HTTPException(status_code=404, detail="Repository not found")
+    return RepoDetailResponse.model_validate(repo)
 
 
 @router.get("/{repo_id}", response_model=RepoDetailResponse)
@@ -125,6 +145,54 @@ async def get_repo_status(
         commits_processed=repo.total_commits,
         total_commits_found=repo.total_commits,
         message=_status_message(repo.processing_status),
+    )
+
+
+@router.get("/{repo_id}/commits", response_model=CommitListResponse)
+async def get_commits(
+    repo_id: int,
+    db: AsyncSession = Depends(get_db),
+    page: int = Query(1, ge=1, description="Page number"),
+    per_page: int = Query(50, ge=1, le=200, description="Items per page"),
+    author: str | None = Query(None, description="Filter by author name or email"),
+    date_from: datetime | None = Query(None, description="Filter commits after this date"),
+    date_to: datetime | None = Query(None, description="Filter commits before this date"),
+):
+    """Get paginated commits for a repository with optional filters."""
+    repo = await get_repository(db, repo_id)
+    if repo is None:
+        raise HTTPException(status_code=404, detail="Repository not found")
+
+    commits, total = await get_repo_commits(
+        db, repo_id, page, per_page, author, date_from, date_to
+    )
+
+    total_pages = math.ceil(total / per_page) if total > 0 else 0
+
+    return CommitListResponse(
+        items=[CommitResponse.model_validate(c) for c in commits],
+        total=total,
+        page=page,
+        per_page=per_page,
+        total_pages=total_pages,
+    )
+
+
+@router.get("/{repo_id}/contributors", response_model=ContributorListResponse)
+async def get_contributors(
+    repo_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    """Get all contributors for a repository, sorted by commit count."""
+    repo = await get_repository(db, repo_id)
+    if repo is None:
+        raise HTTPException(status_code=404, detail="Repository not found")
+
+    contributors = await get_repo_contributors(db, repo_id)
+
+    return ContributorListResponse(
+        items=[ContributorResponse.model_validate(c) for c in contributors],
+        total=len(contributors),
     )
 
 

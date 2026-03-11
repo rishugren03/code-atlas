@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { analyzeRepo } from "../lib/api";
 import styles from "./page.module.css";
 
 const FEATURES = [
@@ -54,12 +56,40 @@ const FAMOUS_REPOS = [
 export default function Home() {
   const [repoUrl, setRepoUrl] = useState("");
   const [isHovered, setIsHovered] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (repoUrl.trim()) {
-      // Will be implemented in Phase 2
-      console.log("Analyzing:", repoUrl);
+    if (!repoUrl.trim() || isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      // Basic github url parsing
+      const urlPattern = /github\.com\/([^/]+)\/([^/]+)/i;
+      const match = repoUrl.match(urlPattern);
+      
+      if (!match) {
+        alert("Please enter a valid GitHub URL (e.g., https://github.com/facebook/react).");
+        setIsSubmitting(false);
+        return;
+      }
+      
+      const owner = match[1];
+      let name = match[2];
+      if (name.endsWith(".git")) {
+        name = name.slice(0, -4);
+      }
+
+      // Start analysis process
+      await analyzeRepo(repoUrl);
+      
+      // Navigate to repository dashboard
+      router.push(`/repo/${owner}/${name}`);
+    } catch (error: any) {
+      console.error("Analysis Error:", error);
+      alert(error.message || "Failed to analyze repository. Please try again.");
+      setIsSubmitting(false);
     }
   };
 
@@ -121,18 +151,20 @@ export default function Home() {
                 onChange={(e) => setRepoUrl(e.target.value)}
                 aria-label="Repository URL"
               />
-              <button id="analyze-btn" type="submit" className={styles.searchBtn}>
-                Explore
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
+              <button id="analyze-btn" type="submit" className={styles.searchBtn} disabled={isSubmitting}>
+                {isSubmitting ? "Processing..." : "Explore"}
+                {!isSubmitting && (
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                )}
               </button>
             </div>
           </form>
