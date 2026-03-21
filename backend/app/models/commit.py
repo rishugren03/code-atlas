@@ -1,4 +1,4 @@
-from sqlalchemy import DateTime, ForeignKey, Index, Integer, String, Text
+from sqlalchemy import DateTime, ForeignKey, Index, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.database import Base
@@ -8,6 +8,8 @@ class Commit(Base):
     __tablename__ = "commits"
     __table_args__ = (
         Index("idx_commits_repo_date", "repo_id", "committed_at"),
+        UniqueConstraint("repo_id", "commit_hash", name="uq_commit_repo_hash"),
+        {"extend_existing": True},
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -21,11 +23,6 @@ class Commit(Base):
     additions: Mapped[int] = mapped_column(Integer, default=0)
     deletions: Mapped[int] = mapped_column(Integer, default=0)
     parent_hash: Mapped[str | None] = mapped_column(String(40), nullable=True)
-
-    __table_args__ = (
-        Index("idx_commits_repo_date", "repo_id", "committed_at"),
-        {"extend_existing": True},
-    )
 
     def __repr__(self) -> str:
         return f"<Commit {self.commit_hash[:8]}>"

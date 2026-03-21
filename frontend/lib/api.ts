@@ -91,6 +91,23 @@ export async function getRepoContributors(repoId: string | number) {
   return apiFetch(`/api/repos/${repoId}/contributors`);
 }
 
+// ─── Files ───────────────────────────────────────────────
+
+export async function getRepoTree(repoId: string | number, commitHash: string = "HEAD") {
+  return apiFetch(`/api/repos/${repoId}/tree/${commitHash}`);
+}
+
+export async function getFileHistory(repoId: string | number, path: string) {
+  // Use map(encodeURIComponent).join('/') to encode each segment, preserving slashes
+  const encodedPath = path.split("/").map(encodeURIComponent).join("/");
+  return apiFetch(`/api/repos/${repoId}/file/${encodedPath}/history`);
+}
+
+export async function getFileContentAtCommit(repoId: string | number, path: string, commitHash: string) {
+  const encodedPath = path.split("/").map(encodeURIComponent).join("/");
+  return apiFetch(`/api/repos/${repoId}/file/${encodedPath}/at/${commitHash}`);
+}
+
 // ─── WebSocket ────────────────────────────────────────────
 
 export function connectRepoWebSocket(repoId: string | number, onMessage: (data: any) => void) {
@@ -122,6 +139,9 @@ const api = {
   getPopularRepos,
   getRepoCommits,
   getRepoContributors,
+  getRepoTree,
+  getFileHistory,
+  getFileContentAtCommit,
   connectRepoWebSocket,
 };
 

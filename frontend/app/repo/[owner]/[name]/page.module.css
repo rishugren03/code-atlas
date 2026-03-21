@@ -294,3 +294,136 @@
   color: var(--text-primary);
   border-style: solid;
 }
+
+/* ─── Processing Banner ────────────────────────────────────── */
+.processingBanner {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: var(--space-3);
+  position: sticky;
+  top: 60px; /* Below navbar */
+  z-index: 10;
+  backdrop-filter: blur(10px);
+}
+
+.processingBannerContent {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+}
+
+.spinnerIcon {
+  color: var(--accent-primary);
+  animation: spin 2s linear infinite;
+  width: 20px;
+  height: 20px;
+}
+
+.processingBannerTitle {
+  display: block;
+  font-weight: 600;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+
+.processingBannerSub {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.bannerProgressBar {
+  flex: 0 0 150px;
+  height: 6px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.bannerProgressFill {
+  height: 100%;
+  background: var(--gradient-primary);
+  transition: width var(--transition-base);
+}
+
+/* ─── Tabs ───────────────────────────────────────────────── */
+.tabsContainer {
+  display: flex;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: var(--space-2);
+}
+
+.tabBtn {
+  background: none;
+  border: none;
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.tabBtn:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.tabActive {
+  color: var(--accent-primary-light);
+  background: var(--bg-glass);
+  box-shadow: inset 0 -2px 0 var(--accent-primary);
+}
+
+/* ─── Code Replay Section ────────────────────────────────── */
+.replaySection {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  height: 70vh;
+  min-height: 500px;
+}
+
+.replayLayout {
+  display: flex;
+  height: 100%;
+}
+
+.browserSidebar {
+  width: 280px;
+  border-right: 1px solid var(--border-color);
+  background: var(--bg-surface);
+  display: flex;
+  flex-direction: column;
+}
+
+.browserContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.replayEditor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-base);
+}
+
+.placeholderState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-secondary);
+  text-align: center;
+}

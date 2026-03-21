@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field, HttpUrl
 class RepoAnalyzeRequest(BaseModel):
     """Request body for POST /api/repos/analyze."""
 
-    url: HttpUrl = Field(..., description="GitHub repository URL to analyze")
+    url: HttpUrl = Field(..., description="GitHub repository URL to analyze. The system is highly optimized and can process massive repositories with hundreds of thousands of commits (like React or VSCode) in few minutes.")
 
 
 # ─── Response Schemas ───────────────────────────────────────

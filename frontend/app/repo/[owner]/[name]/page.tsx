@@ -7,9 +7,12 @@ import {
   lookupRepo,
   getRepoCommits,
   connectRepoWebSocket,
+  getRepoTree,
 } from "../../../../lib/api";
 import styles from "./page.module.css";
-import { Calendar, GitCommit, Users, FileCode2, Search } from "lucide-react";
+import { Calendar, GitCommit, Users, FileCode2, Search, Loader2 } from "lucide-react";
+import FileBrowser from "../../../../components/FileBrowser";
+import CodeReplay from "../../../../components/CodeReplay";
 
 export default function RepoDashboard({ params }: { params: Promise<{ owner: string; name: string }> }) {
   const unwrappedParams = use(params);
@@ -26,6 +29,13 @@ export default function RepoDashboard({ params }: { params: Promise<{ owner: str
   const [page, setPage] = useState(1);
   const [authorFilter, setAuthorFilter] = useState("");
   const [expandedCommit, setExpandedCommit] = useState<string | null>(null);
+
+  // Tabs
+  const [activeTab, setActiveTab] = useState<"timeline" | "replay">("timeline");
+
+  // Replay Data
+  const [fileTree, setFileTree] = useState<any[]>([]);
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
 
   // 1. Initial Lookup
   useEffect(() => {
@@ -70,12 +80,45 @@ export default function RepoDashboard({ params }: { params: Promise<{ owner: str
     };
   }, [repo]);
 
-  // 3. Load Dashboard Data once processed
+  // 3. Eager Data Loading (load instantly if not pending/queued)
   useEffect(() => {
-    if (repo?.processing_status === "processed") {
+    if (repo?.id && status?.status !== "pending" && status?.status !== "queued") {
       loadCommits(1, true);
     }
-  }, [repo?.processing_status, authorFilter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [repo?.id, authorFilter]);
+
+  // 4. Auto-refresh page 1 if currently processing
+  useEffect(() => {
+    if (status?.status === "processing" && page === 1 && !authorFilter && repo?.id) {
+      const interval = setInterval(() => {
+        loadCommits(1, true);
+        
+        // Refresh repo stats live
+        lookupRepo(owner, name).then(data => {
+          setRepo((prev: any) => ({
+            ...prev,
+            total_commits: data.total_commits,
+            total_contributors: data.total_contributors,
+            stars: data.stars,
+            forks: data.forks
+          }));
+        }).catch(err => console.error("Failed to refresh stats:", err));
+        
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status?.status, page, authorFilter, repo?.id]);
+
+  // 5. Load file tree for Code Replay
+  useEffect(() => {
+    if (activeTab === "replay" && repo?.id && fileTree.length === 0) {
+      getRepoTree(repo.id, "HEAD")
+        .then((res: any) => setFileTree(res.entries || []))
+        .catch((err: any) => console.error("Failed to load file tree:", err));
+    }
+  }, [activeTab, repo?.id, fileTree.length]);
 
   async function loadCommits(pageNum: number, reset = false) {
     if (!repo) return;
@@ -85,19 +128,27 @@ export default function RepoDashboard({ params }: { params: Promise<{ owner: str
         per_page: 50,
         author: authorFilter || undefined,
       });
+      
       if (reset) {
         setCommits(res.items);
       } else {
-        setCommits((prev) => [...prev, ...res.items]);
+        setCommits((prev) => {
+          const existingIds = new Set(prev.map(c => c.commit_hash));
+          const newItems = res.items.filter((c: any) => !existingIds.has(c.commit_hash));
+          return [...prev, ...newItems];
+        });
       }
       setCommitsTotal(res.total);
       setPage(pageNum);
+      
+      if (res.total > (repo.total_commits || 0)) {
+        setRepo((prev: any) => ({ ...prev, total_commits: res.total }));
+      }
     } catch (err) {
       console.error("Failed to load commits:", err);
     }
   }
 
-  // Render Loading
   if (loading) {
     return (
       <div className={styles.pageContainer}>
@@ -110,7 +161,6 @@ export default function RepoDashboard({ params }: { params: Promise<{ owner: str
     );
   }
 
-  // Render Error
   if (error) {
     return (
       <div className={styles.pageContainer}>
@@ -125,36 +175,46 @@ export default function RepoDashboard({ params }: { params: Promise<{ owner: str
     );
   }
 
-  // Render Processing State
-  if (status?.status === "pending" || status?.status === "queued" || status?.status === "processing") {
+  // Pending/Queued state blocking
+  if (status?.status === "pending" || status?.status === "queued") {
     return (
       <div className={styles.pageContainer}>
         <Navbar />
         <div className={styles.processingOverlay}>
           <div className={styles.processingOrb} />
           <h2 className={styles.processingStatus}>
-            Analyzing {owner}/{name}
+            Preparing {owner}/{name}
           </h2>
           <p className={styles.processingMessage}>{status.message}</p>
-          
-          <div className={styles.progressBar}>
-            <div
-              className={styles.progressFill}
-              style={{ width: `${Math.max(5, status.progress || 0)}%` }}
-            />
-          </div>
-          <p style={{ marginTop: "1rem", color: "var(--text-muted)", fontSize: "0.875rem" }}>
-            {status.commits_processed} commits processed...
-          </p>
         </div>
       </div>
     );
   }
 
-  // Render Dashboard
   return (
     <div className={styles.pageContainer}>
       <Navbar />
+
+      {/* Streaming Banner */}
+      {status?.status === "processing" && (
+        <div className={styles.processingBanner}>
+          <div className={styles.processingBannerContent}>
+            <Loader2 className={styles.spinnerIcon} />
+            <div style={{ flex: 1 }}>
+              <span className={styles.processingBannerTitle}>Stream Parsing Repository...</span>
+              <span className={styles.processingBannerSub}>
+                {Intl.NumberFormat("en-US").format(status.commits_processed || 0)} commits parsed. The timeline is updating in real-time.
+              </span>
+            </div>
+            <div className={styles.bannerProgressBar}>
+              <div 
+                className={styles.bannerProgressFill} 
+                style={{ width: `${Math.max(5, status.progress || 0)}%` }} 
+              />
+            </div>
+          </div>
+        </div>
+      )}
       
       <main className={styles.mainContent}>
         <div className="container">
@@ -206,9 +266,26 @@ export default function RepoDashboard({ params }: { params: Promise<{ owner: str
             </div>
           </section>
 
+          {/* Tabs */}
+          <div className={styles.tabsContainer}>
+            <button 
+              className={`${styles.tabBtn} ${activeTab === 'timeline' ? styles.tabActive : ''}`}
+              onClick={() => setActiveTab('timeline')}
+            >
+              Commit Timeline
+            </button>
+            <button 
+              className={`${styles.tabBtn} ${activeTab === 'replay' ? styles.tabActive : ''}`}
+              onClick={() => setActiveTab('replay')}
+            >
+              Code Replay
+            </button>
+          </div>
+
           {/* Timeline Section */}
-          <section className={styles.timelineSection}>
-            <div className={styles.timelineHeader}>
+          {activeTab === 'timeline' && (
+            <section className={styles.timelineSection}>
+              <div className={styles.timelineHeader}>
               <h2 className={styles.timelineTitle}>Commit Timeline</h2>
               
               <div className={styles.filters}>
@@ -227,6 +304,11 @@ export default function RepoDashboard({ params }: { params: Promise<{ owner: str
             </div>
 
             <div className={styles.timeline}>
+              {commits.length === 0 && status?.status === "processing" && (
+                <div style={{ padding: "16px 0", color: "var(--text-muted)" }}>
+                  Waiting for initial commits to stream...
+                </div>
+              )}
               {commits.map((commit: any) => (
                 <div 
                   key={commit.commit_hash} 
@@ -280,7 +362,7 @@ export default function RepoDashboard({ params }: { params: Promise<{ owner: str
                 </div>
               ))}
 
-              {commits.length < commitsTotal && (
+              {commits.length > 0 && commits.length < commitsTotal && (
                 <button 
                   className={styles.loadMore}
                   onClick={() => loadCommits(page + 1)}
@@ -290,6 +372,47 @@ export default function RepoDashboard({ params }: { params: Promise<{ owner: str
               )}
             </div>
           </section>
+          )}
+
+          {/* Code Replay Section */}
+          {activeTab === 'replay' && (
+            <section className={styles.replaySection}>
+              <div className={styles.replayLayout}>
+                <div className={styles.browserSidebar}>
+                  <h3 style={{ fontSize: "14px", fontWeight: 600, padding: "8px 12px", borderBottom: "1px solid var(--border-color)", margin: 0 }}>
+                    Repository Files
+                  </h3>
+                  <div className={styles.browserContent}>
+                    {fileTree.length > 0 ? (
+                      <FileBrowser 
+                        entries={fileTree} 
+                        selectedPath={selectedFile} 
+                        onSelect={(path: string) => setSelectedFile(path)} 
+                      />
+                    ) : (
+                      <div style={{ padding: 20, textAlign: "center", color: "var(--text-muted)", fontSize: 14 }}>
+                        Loading file tree...
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className={styles.replayEditor}>
+                  {selectedFile ? (
+                    <CodeReplay repoId={repo.id} filePath={selectedFile} />
+                  ) : (
+                    <div className={styles.placeholderState}>
+                      <FileCode2 size={48} color="var(--border-color)" style={{ marginBottom: 16 }} />
+                      <p>Select a file from the sidebar to view its history.</p>
+                      <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 8 }}>
+                        You can scrub through time to see how the code evolved.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
+          )}
 
         </div>
       </main>
