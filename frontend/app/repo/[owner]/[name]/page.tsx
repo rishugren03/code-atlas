@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
+import dynamic from "next/dynamic";
 import { formatDistanceToNow, format } from "date-fns";
 import Navbar from "../../../components/Navbar";
 import {
@@ -8,11 +9,15 @@ import {
   getRepoCommits,
   connectRepoWebSocket,
   getRepoTree,
+  getAllRepoCommits,
 } from "../../../../lib/api";
 import styles from "./page.module.css";
-import { Calendar, GitCommit, Users, FileCode2, Search, Loader2 } from "lucide-react";
+import { Calendar, GitCommit, Users, FileCode2, Search, Loader2, Building2 } from "lucide-react";
 import FileBrowser from "../../../../components/FileBrowser";
 import CodeReplay from "../../../../components/CodeReplay";
+
+// Three.js must only run in the browser — disable SSR for the 3D city
+const GitCity3D = dynamic(() => import("../../../../components/GitCity3D"), { ssr: false });
 
 export default function RepoDashboard({ params }: { params: Promise<{ owner: string; name: string }> }) {
   const unwrappedParams = use(params);
@@ -31,11 +36,15 @@ export default function RepoDashboard({ params }: { params: Promise<{ owner: str
   const [expandedCommit, setExpandedCommit] = useState<string | null>(null);
 
   // Tabs
-  const [activeTab, setActiveTab] = useState<"timeline" | "replay">("timeline");
+  const [activeTab, setActiveTab] = useState<"timeline" | "replay" | "city">("timeline");
 
   // Replay Data
   const [fileTree, setFileTree] = useState<any[]>([]);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
+
+  // 3D City Data
+  const [cityCommits, setCityCommits] = useState<any[]>([]);
+  const [cityLoading, setCityLoading] = useState(false);
 
   // 1. Initial Lookup
   useEffect(() => {
@@ -119,6 +128,18 @@ export default function RepoDashboard({ params }: { params: Promise<{ owner: str
         .catch((err: any) => console.error("Failed to load file tree:", err));
     }
   }, [activeTab, repo?.id, fileTree.length]);
+
+  // 6. Load all commits for 3D City
+  useEffect(() => {
+    if (activeTab === "city" && repo?.id && cityCommits.length === 0 && !cityLoading) {
+      setCityLoading(true);
+      getAllRepoCommits(repo.id, 400)
+        .then(data => setCityCommits(data))
+        .catch(err => console.error("Failed to load city commits:", err))
+        .finally(() => setCityLoading(false));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, repo?.id]);
 
   async function loadCommits(pageNum: number, reset = false) {
     if (!repo) return;
@@ -268,17 +289,24 @@ export default function RepoDashboard({ params }: { params: Promise<{ owner: str
 
           {/* Tabs */}
           <div className={styles.tabsContainer}>
-            <button 
+            <button
               className={`${styles.tabBtn} ${activeTab === 'timeline' ? styles.tabActive : ''}`}
               onClick={() => setActiveTab('timeline')}
             >
               Commit Timeline
             </button>
-            <button 
+            <button
               className={`${styles.tabBtn} ${activeTab === 'replay' ? styles.tabActive : ''}`}
               onClick={() => setActiveTab('replay')}
             >
               Code Replay
+            </button>
+            <button
+              className={`${styles.tabBtn} ${activeTab === 'city' ? styles.tabActive : ''}`}
+              onClick={() => setActiveTab('city')}
+            >
+              <Building2 size={14} style={{ display: 'inline', marginRight: '6px' }} />
+              3D City
             </button>
           </div>
 
@@ -372,6 +400,28 @@ export default function RepoDashboard({ params }: { params: Promise<{ owner: str
               )}
             </div>
           </section>
+          )}
+
+          {/* 3D City Section */}
+          {activeTab === 'city' && (
+            <section className={styles.citySection}>
+              <div className={styles.cityHeader}>
+                <h2 className={styles.timelineTitle}>Git City — 3D Visualization</h2>
+                <p style={{ color: "var(--text-secondary)", fontSize: 14, marginTop: 4 }}>
+                  Each building represents a commit. Height = lines changed. Color = contributor. Scrub the timeline to watch the city grow.
+                </p>
+              </div>
+              <div className={styles.cityCanvas}>
+                {cityLoading ? (
+                  <div className={styles.cityLoading}>
+                    <Loader2 size={36} className={styles.spinnerIcon} />
+                    <p>Loading commits for 3D city…</p>
+                  </div>
+                ) : (
+                  <GitCity3D commits={cityCommits} repoName={`${owner}/${name}`} />
+                )}
+              </div>
+            </section>
           )}
 
           {/* Code Replay Section */}

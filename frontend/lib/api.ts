@@ -108,6 +108,21 @@ export async function getFileContentAtCommit(repoId: string | number, path: stri
   return apiFetch(`/api/repos/${repoId}/file/${encodedPath}/at/${commitHash}`);
 }
 
+export async function getAllRepoCommits(repoId: string | number, maxCommits = 400): Promise<any[]> {
+  const perPage = 200;
+  const maxPages = Math.ceil(maxCommits / perPage);
+  const all: any[] = [];
+
+  for (let page = 1; page <= maxPages; page++) {
+    const res = await getRepoCommits(repoId, { page, per_page: perPage });
+    all.push(...res.items);
+    if (all.length >= res.total || res.items.length < perPage) break;
+  }
+
+  // Reverse so oldest commit is first (for city timeline playback)
+  return all.reverse();
+}
+
 // ─── WebSocket ────────────────────────────────────────────
 
 export function connectRepoWebSocket(repoId: string | number, onMessage: (data: any) => void) {
